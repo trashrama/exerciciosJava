@@ -1,72 +1,56 @@
-
-import java.sql.Array;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Scanner;
+import java.util.Date;
+
 
 public class Main {
-    static Scanner in = new Scanner(System.in);
-    static Scanner st = new Scanner(System.in);
 
-    public static void main(String[] args) {
-        ArrayList<Funcionario> funcionarios;
-        funcionarios = lerFuncionarios();
-        aumento(funcionarios);
+
+    public static void main(String[] args) throws DateException {
+        Reserva res = lerDatas();
+        System.out.println(res);
     }
 
-    public static ArrayList<Funcionario> lerFuncionarios(){
-        int num, id;
-        String nome;
-        float salario;
-        ArrayList<Funcionario> funcionarios = new ArrayList<Funcionario>();
+    public static Reserva lerDatas() throws DateException{
+        Scanner in = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
+
+        int numQuarto;
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        Date dataEntrada;
+        Date dataSaida;
+        Date hoje = new Date();
+
+        try {
+            System.out.println("Número do quarto: ");
+            numQuarto = in.nextInt();
+            System.out.println("Check in: ");
+            dataEntrada = sdf.parse(sc.nextLine());
+            System.out.println("Check out: ");
+            dataSaida = sdf.parse(sc.nextLine());
 
 
-        System.out.printf("Digite o número de funcionários: ");
-        num = in.nextInt();
-
-        if (num > 0){
-            for (int i = 0; i < num; i++) {
-                System.out.printf("Digite o ID do Funcionário %d: ", i+1);
-                id = in.nextInt();
-                System.out.printf("Digite o nome do Funcionário %d: ", i+1);
-                nome = st.next();
-                System.out.printf("Digite o salario do Funcionário %d: ", i+1);
-                salario = in.nextFloat();
-                funcionarios.add(new Funcionario(id, nome, salario));
-
-
+            if (dataEntrada.after(dataSaida)) {
+                System.out.println("Datas inválidas!");
             }
-        }
-        return funcionarios;
-
-    }
-    public static void aumento(ArrayList<Funcionario> func){
-        int id;
-        float porc;
-        boolean encontrou = false;
-
-        System.out.printf("Digite o ID do funcionário a ter o salário aumentado: ");
-        id = in.nextInt();
-
-        for (Funcionario f: func){
-            if (f.getId() == id) {
-                System.out.printf("Digite a porcentagem do aumento:");
-                porc = in.nextFloat();
-                f.aumentarSalario(porc);
-                System.out.printf("O aumento para %s foi realizado com sucesso!\n", f.getNome());
-                encontrou = !encontrou;
+            if (dataEntrada.before(hoje) || dataSaida.before(hoje)) {
+                System.out.println("Erro:  O check-in não pode ser anterior a hoje");
+                throw new RuntimeException("Erro!");
             }
+
+            return new Reserva(numQuarto, dataEntrada, dataSaida);
+
+        } catch (ParseException e){
+            System.out.println("Formato de Data Inválido!");
+            throw new DateException("Erro!");
+        }catch (IllegalArgumentException e){
+            throw new DateException("Erro");
         }
 
-        if (encontrou)
-            lista(func);
-        else
-            System.out.println("O ID não foi encontrado. Finalizando o programa..");
-        
+    }
 
-    }
-    public static void lista(ArrayList<Funcionario> func){
-        for(Funcionario f: func){
-            System.out.println(f.toString());
-        }
-    }
+
+
+
 }
